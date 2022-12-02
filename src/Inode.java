@@ -55,7 +55,29 @@ public class Inode {
 
  	
 	// saving this inode to disk
-	void toDisk( short iNumber ) {     
+	void toDisk( short iNumber ) {  
+		int blkNumber = 1 + iNumber / 16 ;
+		byte[] data = new byte[Disk.blockSize];
+		SysLib.rawread(blkNumber,data);   
+		int offset = ( iNumber % 16 ) * iNodeSize; 
+
+		length = SysLib.bytes2int( data, offset ); // retrieve all data members
+		offset += 4;                               // from data
+		count = SysLib.bytes2short( data, offset );
+		offset += 2;
+		flag = SysLib.bytes2short( data, offset );
+		offset += 2;
+
+		for ( int i = 0; i < directSize; i++ ) {
+			direct[i] = SysLib.bytes2short( data, offset );
+			offset += 2;
+		}
+		indirect = SysLib.bytes2short( data, offset );
+
+		offset += 2;
+
+		SysLib.rawread(blkNumber,data); 
+
 		// you implement
 	}
 }
