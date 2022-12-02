@@ -19,17 +19,19 @@ public class Directory {
 	
 	// you implement
 	public void bytes2directory( byte data[] ) {
-		int offset = 0;
-		for(int i = 0; i < fsize.length; i++){
-			SysLib.bytes2int(data,offset);
-			offset += 4;
+		// assumes data[] contains directory information retrieved from disk
+        	// initialize the directory fsizes[] and fnames[] with this data[]
+		int offset = 0; 
+		for (int i = 0; i < fsizes.length; i++) {
+			fsizes[i] = SysLib.bytes2int(data, offset); 
+			offset += 4; 
+		}
+		for (int i = 0; i < fnames.length; i++) {
+			String tableEntry = new String( fnames[i], offset, fsizes[i] );
+			tableEntry.getChars(0, fsizes[i], fnames[i], 0);
+			offset += maxChars * 2;
 		}
 
-		for(int i = 0; i < fnames.length; i++ ){
-			
-		}
-		// assumes data[] contains directory information retrieved from disk
-        // initialize the directory fsizes[] and fnames[] with this data[]
 	}
 	
 	public byte[] directory2bytes( ) {
