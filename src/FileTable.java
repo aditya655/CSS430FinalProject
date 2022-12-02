@@ -1,3 +1,4 @@
+import java.util.Vector;
 
 public class FileTable {
 // File Structure Table
@@ -12,6 +13,26 @@ public class FileTable {
 
 	// you implement
 	public synchronized FileTableEntry falloc( String fname, String mode ) {
+		short iNumber = (fname.equals("/") ? 0 : dir.namei(fname));
+		Inode inode;
+
+		if(iNumber >= 0){
+			
+			iNumber = dir.ialloc(fname);
+			inode = new Inode();
+			inode.iNumber = iNumber;
+		}
+		else{
+			inode = new Inode(iNumber);
+			if(inode.flag == 0)
+			 inode.flag = 1;
+		}
+
+		inode.count++;
+		inode.toDisk(iNumber);
+		FileTableEntry e = new FileTableEntry(inode, iNumber, mode);
+		table.add(e);
+		return e;
 	}
 
     public synchronized boolean ffree( FileTableEntry e ) {
