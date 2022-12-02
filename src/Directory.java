@@ -56,6 +56,12 @@ public class Directory {
 
 	// you implement
     public boolean ifree ( short iNumber ) {
+		if(iNumber <= 0 || iNumber >= fsizes.length)
+		return false;
+		fsizes[iNumber] = 0;
+		fnames[iNumber] = new char[maxChars];
+		return true;
+
 		// deallocates this inumber (inode number).
 		// the corresponding file will be deleted.
     }
