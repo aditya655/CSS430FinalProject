@@ -54,7 +54,25 @@ public class FileSystem {
 
     FileTableEntry open( String filename, String mode ) {
         // filetable entry is allocated
+        FileTableEntry e = filetable.falloc(filename,mode);
 
+        if(mode.equals("r")){
+
+        }
+
+        else if(mode.equals("w")){
+
+        }
+
+        else if(mode.equals("w+")){
+
+        }
+
+        else{
+
+        }
+         
+        return e;
     }
 
     boolean close( FileTableEntry ftEnt ) {
@@ -71,6 +89,9 @@ public class FileSystem {
 	
 
     int fsize( FileTableEntry ftEnt ) {
+
+        ftEnt = new FileTableEntry();
+        return ftEnt.inode.length;
 
     }
 
