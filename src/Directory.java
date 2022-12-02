@@ -19,6 +19,15 @@ public class Directory {
 	
 	// you implement
 	public void bytes2directory( byte data[] ) {
+		int offset = 0;
+		for(int i = 0; i < fsize.length; i++){
+			SysLib.bytes2int(data,offset);
+			offset += 4;
+		}
+
+		for(int i = 0; i < fnames.length; i++ ){
+			
+		}
 		// assumes data[] contains directory information retrieved from disk
         // initialize the directory fsizes[] and fnames[] with this data[]
 	}
@@ -58,6 +67,7 @@ public class Directory {
     public boolean ifree ( short iNumber ) {
 		if(iNumber <= 0 || iNumber >= fsizes.length)
 		return false;
+		
 		fsizes[iNumber] = 0;
 		fnames[iNumber] = new char[maxChars];
 		return true;
