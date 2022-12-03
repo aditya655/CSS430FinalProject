@@ -53,6 +53,16 @@ public class Superblock {
 	
 	// you implement
 	public boolean returnBlock( int oldBlockNumber ) {
+		byte[] data = new byte[512];
+		for(int i = 0; i < Disk.blockSize; i++){
+			data[i] = 0;
+		}
+
+		SysLib.int2bytes(freeList,data,0);
+		SysLib.rawwrite(oldBlockNumber,data);
+
+		freeList = oldBlockNumber;
+		return true;
 	// return this former block
 	}
 	
