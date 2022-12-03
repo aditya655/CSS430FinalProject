@@ -18,78 +18,29 @@ public class FileTable {
 	public synchronized FileTableEntry falloc( String fname, String mode ) {
 		// gets the iNumber from inode for passed in filename if it doesn't exist
 		short iNumber = (fname.equals("/") ? 0 : dir.namei(fname));
-		Inode inode = null;
+		Inode inode;
 
-		// flag 1 (UNUSED), flag 1 (USED), flag 2 (READ), flag 3 (WRITE)
+		if(iNumber >= 0){
 
-		// loop because function synchronized 
-		while (true) {
-			// if inode exist 
-			if (iNumber >= 0) {
-				// gets file from disk
-				inode = new Inode(iNumber);
-				// if mode is read
-				if (mode.equals("r")) {
-					 
-					// if no other threads are writing to it
-					if (inode.flag != 3) {
-						// change to read
-						inode.flag = 2; 
-						break;
-					}
-					// other threads are writing to the inode we must wait
-					else {
-						try {
-							wait();
-						} catch (Exception e) {	
-							SysLib.cout("error in writing");
-						}
-					}
-				}
-				// if file is requesting: w, w/r, or a
-				else {
-					// if flag of file is used
-					if (inode.flag == 0 || inode.flag == 1) {
-						inode.flag = 3;
-						break;
-					}
-					// other threads are reading or writing to the inode we must wait
-					else {
-						try {
-							wait();
-						}
-						catch (Exception e) {  
-							SysLib.cout("error in w, w+, a (when !r)");
-						}
-					}
-				}
-			} 
-			// if inode doesn't exist in directory 
-			// create a new inode 
-			else if (!mode.equals("r")) {
-				// alloc an INumber for file
-				iNumber = dir.ialloc(fname);
-				// create an inode for file
-				inode = new Inode(iNumber);
-				// new descriptor number 3 (has to be in range of 3-31)
-				inode.flag = 3;
-				break;
-			}
-			else {
-				return null;
-			} 
+			iNumber = dir.ialloc(fname);
+			inode = new Inode();
+			inode.iNumber = iNumber;
+		}
+		else{
+			inode = new Inode(iNumber);
+			if(inode.flag == 0)
+			 inode.flag = 1;
+		}
+
+		inode.count++;
+		inode.toDisk(iNumber);
+		FileTableEntry e = new FileTableEntry(inode, iNumber, mode);
+		table.add(e);
+		return e;
 		}
 		
-		// increases count of users
-		inode.count++;
-		// save to disk
-		inode.toDisk(iNumber);
-		// create new file table entry and add to table
-		FileTableEntry e = new FileTableEntry(inode, iNumber, mode);
-		table.addElement(e);
-		// return entry
-		return e;
-	}
+		
+	
 
     public synchronized boolean ffree( FileTableEntry e ) {
 	// receive a file table entry
