@@ -151,7 +151,7 @@ public class FileSystem {
          }
        }
 
-       ftEnt.inode.toDisk(ftEnt.inode.iNumber);
+       ftEnt.inode.toDisk(ftEnt.iNumber);
 
        for(int i = 0; i < freedBlocks.size(); i++)
          superblock.returnBlock((int)freedBlocks.elementAt(i));
