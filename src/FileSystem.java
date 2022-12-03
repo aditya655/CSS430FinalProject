@@ -1,5 +1,7 @@
+import java.util.*;
+
 public class FileSystem {
-    private SuperBlock superblock;
+    private Superblock superblock;
     private Directory directory;
     private FileTable filetable;
 
@@ -124,6 +126,35 @@ public class FileSystem {
     }
 
     private boolean deallocAllBlocks( FileTableEntry ftEnt ) {
+        Vector<Short> freedBlocks = new Vector<Short>();
+       
+        for(int i = 0; i < ftEnt.inode.directSize; i++){
+       
+          if(ftEnt.inode.direct[i] > 0){
+            freedBlocks.add(new Short(ftEnt.inode.direct[i]));
+            ftEnt.inode.direct[i] = -1;
+          }
+          
+         else if(ftEnt.inode.indirect >= 0){
+            byte[] inDirectBlock = new byte[Disk.blockSize];
+            SysLib.rawread(ftEnt.inode.indirect, inDirectBlock);
+
+            for(int i = 0; i < inDirectBlock.length; i++ ){
+                short validBlock = SysLib.bytes2short(inDirectBlock,i);
+
+                if(validBlock > 0){
+                    freedBlocks.add(new Short(validBlock));
+                }
+            }
+            freedBlocks.add(new Short(ftEnt.inode.indirect));
+            ftEnt.inode.indirect = -1;
+         }
+       }
+
+       ftEnt.inode.toDisk(ftEnt.inode.iNumber);
+
+       for(int i = 0; i < freedBlocks.size(); i++)
+         superblock.returnBlock((int)freedBlocks.elementAt(i));
 
         return true;
     }
