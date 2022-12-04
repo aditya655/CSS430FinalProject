@@ -165,6 +165,20 @@ public class FileSystem {
     boolean delete( String filename ) {
         FileTableEntry ftEnt = open( filename, "w" );
         short iNumber = ftEnt.iNumber;
+       
+        
+        while(ftEnt.inode.count > 0){
+            try{
+                wait();
+            }
+            catch
+                (InterruptedException e){};
+            
+        }
+        ftEnt.inode.count = 0;
+        ftEnt.inode.length = 0;
+        ftEnt.inode.flag = 0;
+        deallocAllBlocks(ftEnt);
         return close( ftEnt ) && directory.ifree( iNumber );
     }
 
