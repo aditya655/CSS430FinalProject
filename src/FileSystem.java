@@ -127,7 +127,7 @@ public class FileSystem {
         }
     }
 
-    private synchronized int readFromFileTable(FileTableEntry e, byte[] buffer){
+    private synchronized int readFromFileTableEntry(FileTableEntry e, byte[] buffer){
         byte[] data = new byte[512];
         int readBytes = 0;
         int readLength = 0;
@@ -152,6 +152,20 @@ public class FileSystem {
     
 
         }
+    }
+
+    private synchronized int writeFromFileTableEntry(FileTableEntry e, byte[] buffer){
+        short block;
+        int blockOffSet = e.seekPtr % Disk.blockSize;
+        byte[] data = new byte[Disk.blockSize];
+        int writtenBytes = 0;
+        int iterate = 0;
+
+        while(writtenBytes < buffer.length){
+
+        }
+
+        return writtenBytes;
     }
 
     private boolean deallocAllBlocks( FileTableEntry ftEnt ) {
