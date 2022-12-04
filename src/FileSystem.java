@@ -56,22 +56,37 @@ public class FileSystem {
 
     FileTableEntry open( String filename, String mode ) {
         // filetable entry is allocated
+        boolean newFile = directory.namei(filename) == -1;
         FileTableEntry e = filetable.falloc(filename,mode);
 
         if(mode.equals("r")){
-
+            if(newFile)
+               return null;
+            e.seekPtr = 0;
         }
 
         else if(mode.equals("w")){
-
+            e.seekPtr = 0;
+            deallocAllBlocks(e);
+            newFile = true;
         }
 
         else if(mode.equals("w+")){
-
+            e.seekPtr = 0;
         }
 
         else{
+            e.seekPtr = e.inode.length;
+        }
 
+        if(newFile){
+            short directBlock = superblock.claimBlock();
+            if(directBlock == -1)
+                return null;
+            
+                e.inode.addBlock(directBlock);
+                e.inode.toDisk(e.iNumber);
+            
         }
          
         return e;
