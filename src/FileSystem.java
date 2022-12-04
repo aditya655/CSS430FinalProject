@@ -55,6 +55,7 @@ public class FileSystem {
     }
 
     FileTableEntry open( String filename, String mode ) {
+<<<<<<< HEAD
         // filetable entry is allocated
         boolean newFile = directory.namei(filename) == -1;
         FileTableEntry e = filetable.falloc(filename,mode);
@@ -87,8 +88,18 @@ public class FileSystem {
                 e.inode.addBlock(directBlock);
                 e.inode.toDisk(e.iNumber);
             
+=======
+        // set filetable entry 
+        FileTableEntry e = filetable.falloc(filename, mode);
+        // entry is valid 
+        if (e != null && mode.equals("w")) {
+            // delete everyting in entry first
+            if (deallocAllBlocks(e) == false) {
+                e = null;
+            }
+>>>>>>> 090481ccf829a044c0c72603b775945ebebdad41
         }
-         
+        // return filetable entry
         return e;
     }
 
