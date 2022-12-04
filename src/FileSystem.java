@@ -55,25 +55,16 @@ public class FileSystem {
     }
 
     FileTableEntry open( String filename, String mode ) {
-        // filetable entry is allocated
-        FileTableEntry e = filetable.falloc(filename,mode);
-
-        if(mode.equals("r")){
-
+        // set filetable entry 
+        FileTableEntry e = filetable.falloc(filename, mode);
+        // entry is valid 
+        if (e != null && mode.equals("w")) {
+            // delete everyting in entry first
+            if (deallocAllBlocks(e) == false) {
+                e = null;
+            }
         }
-
-        else if(mode.equals("w")){
-
-        }
-
-        else if(mode.equals("w+")){
-
-        }
-
-        else{
-
-        }
-         
+        // return filetable entry
         return e;
     }
 
