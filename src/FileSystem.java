@@ -127,6 +127,20 @@ public class FileSystem {
         }
     }
 
+    private synchronized int readFromFileTable(FileTableEntry e, byte[] buffer){
+        byte[] data = new byte[512];
+        int readBytes = 0;
+        int readLength = 0;
+        int startCopy = 0;
+        int iterate = 0;
+
+        while(readBytes < buffer.length && e.seekPtr < e.inode.length){
+
+        }
+
+        return readBytes;
+    }
+
     int write( FileTableEntry ftEnt, byte[] buffer ) {
         // at this point, ftEnt is only the one to modify the inode
         if ( ftEnt.mode == "r" )
