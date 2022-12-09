@@ -58,6 +58,18 @@ public class Superblock {
 	// you implement
 	public int getFreeBlock( ) {
 
+		int result = freeList;
+		byte[] data = new byte[Disk.blockSize];
+		SysLib.rawread(freeList,data);
+
+		freeList = SysLib.bytes2int(data,0);
+
+		SysLib.int2bytes(0,data,0);
+		SysLib.rawwrite(result,data);
+
+		sync();
+		return result;
+
 		
 		// get a new free block from the freelist
 	}
