@@ -80,4 +80,49 @@ public class Inode {
 
 		// you implement
 	}
+
+	public int addBlock(short block){
+
+		for(int i = 0; i < directSize; i++){
+			if(direct[i] <= 0){
+				direct[i] = block;
+				return 0;
+			}
+		}
+
+		if(indirect != -1){
+			byte[] data = new byte[Disk.blockSize];
+			SysLib.rawread(indirect,data);
+			for(short offset = 0; offset < Disk.blockSize; offset += 2){
+				if(SysLib.bytes2short(data,offset) <= 0){
+					SysLib.short2bytes(block,data,offset);
+					return SysLib.rawwrite(indirect,data);
+				}
+			}
+		}
+		return -1;
+	}
+
+	public short blockFromSeekPtr(int seekPtr){
+		if(seekPtr < 0)
+			return -1;
+		
+		short seekBlock = (short)(seekPtr / Disk.blockSize);
+
+		if(seekBlock < directSize){
+			short directBlock = direct[seekBlock];
+			if(directBlock == -1) return -1;
+			return directBlock;
+		}
+
+		else{
+			if(indirect == -1) return -1;
+
+			byte[] data = new byte[Disk.blockSize];
+			SysLib.rawread(indirect,data);
+
+			short inDirectBlock = SysLib.bytes2short(data, (seekBlock - directSize) * 2);
+			if(inDirectBlock == 0) return -1;
+		}
+	}
 }
