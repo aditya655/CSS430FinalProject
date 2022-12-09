@@ -294,8 +294,32 @@ public class FileSystem {
     private final int SEEK_CUR = 1;
     private final int SEEK_END = 2;
 
+   
     int seek( FileTableEntry ftEnt, int offset, int whence ) {
+    
         synchronized ( ftEnt ) {
+            if(ftEnt == null) return -1;
+
+            int seek = ftEnt.seekPtr;
+            switch(whence){
+                case SEEK_SET:
+                 seek = offset;
+                 break;
+                case SEEK_CUR:
+                 seek += offset;
+                 break;
+                 case SEEK_END:
+                 seek += offset;
+                 break;
+                 default:
+                  return -1;
+                 
+            }
+
+            if(seek < 0) return -1;
+
+            ftEnt.seekPtr = seek;
+            return ftEnt.seekPtr;
             /*
             System.out.println( "seek: offset=" + offset +
                     " fsize=" + fsize( ftEnt ) +
