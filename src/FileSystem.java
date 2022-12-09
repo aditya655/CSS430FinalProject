@@ -107,7 +107,7 @@ public class FileSystem {
 
     int fsize( FileTableEntry ftEnt ) {
 
-        ftEnt = new FileTableEntry();
+        
         return ftEnt.inode.length;
 
     }
