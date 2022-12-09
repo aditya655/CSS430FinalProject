@@ -38,6 +38,7 @@ public class Superblock {
 	//  helper function
 	void sync( ) {
 		byte[] superBlock = new byte[Disk.blockSize];
+		SysLib.rawread(0,superBlock);
 		SysLib.int2bytes( totalBlocks, superBlock, 0 );
 		SysLib.int2bytes( inodeBlocks, superBlock, 4 );
 		SysLib.int2bytes( freeList, superBlock, 8 );
