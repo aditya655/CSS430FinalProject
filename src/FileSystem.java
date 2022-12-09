@@ -221,7 +221,7 @@ public class FileSystem {
             int writeLength = ((remainingBytes < (Disk.blockSize - blockOffSet)) ? remainingBytes : (Disk.blockSize - blockOffSet));
             System.arraycopy(buffer, writtenBytes, data, blockOffSet, writeLength);
 
-            System.rawwrite(block,data);
+            SysLib.rawwrite(block,data);
 
             writtenBytes += writeLength;
             e.seekPtr += writeLength;
