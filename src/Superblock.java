@@ -51,10 +51,43 @@ public class Superblock {
 		format( defaultInodeBlocks );
     }
 	
-	// you implement
-	 void format( int files ) {
-		// initialize the superblock
-	 }
+	
+	// Formats the disk (you implement)
+	// sets the number of blocks that needs to be freed
+	void format( int files ) {
+
+		// sets the number of inodes that needs to be freed
+		totalInodes = files; 
+
+		// create and write blank iNodes to disk
+		for(short i = 0; i < totalInodes; i++) {
+            Inode newInode = new Inode();
+            newInode.flag = 0;
+			// save to disk
+            newInode.toDisk(i);
+        }
+
+		// sets freelist head to first free block, which is 
+		// after all the inodes are created (16 per block) 
+        freeList = (totalInodes / 16) + 2;
+
+		// create freelist linked list
+        for(int i = freeList; i < totalBlocks; i++) {
+            byte[] block = new byte[Disk.blockSize];
+
+			// erase block
+            for(int j = 0; j < Disk.blockSize; j++) {
+                block[j] = 0;
+            }
+			// sets bytes to point to next free block
+            SysLib.int2bytes(i + 1, block, 0);
+			// write block back to disk
+            SysLib.rawwrite(i, block);
+        }
+
+		// update variables and read to disk changes
+        this.sync();
+	}
 	
 	// you implement
 	public int getFreeBlock( ) {
