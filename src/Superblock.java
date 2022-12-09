@@ -2,16 +2,25 @@
 public class Superblock {
     private final int defaultInodeBlocks = 64;
     public int totalBlocks;
+    public int totalInodes;
     public int inodeBlocks;
     public int freeList;
 	
-	// you implement
+	// SuperBlock constructor (you implement)
+	// Reads the Superblock from the disk and initialize
+	// variables from the number of blocks, inodes, 
+	// and block number of the freeLists head.
 	public SuperBlock( int diskSize ) {
-		// read the superblock from disk	
+		// read superblock from disk	
 		byte[] superBlock = new byte[Disk.blockSize];
+		// superblock located in block zero
 		SysLib.rawread(0, superBlock);
+		
+		// read total num of blocks
 		totalBlocks = SysLib.bytes2int(superBlock,0);
+		// read total num of inodes
 		totalInodes = SysLib.bytes2int(superBlock,4);
+		// read freeList
 		freeList = SysLib.bytes2int(superBlock,8);
 
 		//validate disk contents
