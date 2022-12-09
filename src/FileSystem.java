@@ -133,10 +133,43 @@ public class FileSystem {
         int readLength = 0;
         int startCopy = 0;
         int iterate = 0;
+        int block;
 
         while(readBytes < buffer.length && e.seekPtr < e.inode.length){
 
+            iterate++;
+            block = e.inode.blockFromSeekPtr(e.seekPtr);
+
+            if(block == -1){
+                return -1;
+                
+            }
+
+            if(SysLib.rawread(block,data) == -1){
+                return -1;
+            }
+
+            int offset = e.seekPtr % Disk.blockSize;
+            int bytesAvail = Disk.blockSize - offset;
+
+
+            int remainingBytes = e.inode.length - e.seekPtr;
+            boolean lastBlock = remainingBytes <= bytesAvail;
+            readLength = (lastBlock ? remainingBytes : bytesAvail);
+
+            int bytesToRead = (buffer.length - readBytes) < readLength ? (buffer.length - readBytes) : readLength;
+
+            System.arraycopy(data, offset, buffer, startCopy, bytesToRead);
+
+            
+
+            readBytes += bytesToRead;
+            e.seekPtr += bytesToRead;
+            startCopy += bytesToRead;
+
+          
         }
+      
 
         return readBytes;
     }
@@ -161,9 +194,41 @@ public class FileSystem {
         int writtenBytes = 0;
         int iterate = 0;
 
-        while(writtenBytes < buffer.length){
+        while(writtenBytes < buffer.length && e.seekPtr < e.inode.length){
+            iterate++;
+            block = e.inode.blockFromSeekPtr(e.seekPtr);
 
-        }
+            if(block == -1){
+                int seekBlock = e.seekPtr / Disk.blockSize;
+                if(seekBlock >= e.inode.directSize && e.inode.indirect <= 0){
+                    short index = (short)superblock.getFreeBlock();
+                    if(index == -1){
+                        return -1;
+                    }
+                    e.inode.indirect = index; 
+                }
+               
+                block = (short)superblock.getFreeBlock();
+                if(block == -1){
+                    return -1;
+                }
+                e.inode.addBlock(block);
+                
+            }
+
+            int remainingBytes = buffer.length - writtenBytes;
+            SysLib.rawread(block,data);
+            int writeLength = ((remainingBytes < (Disk.blockSize - blockOffSet)) ? remainingBytes : (Disk.blockSize - blockOffSet));
+            System.arraycopy(buffer, writtenBytes, data, blockOffSet, writeLength);
+
+            System.rawwrite(block,data);
+
+            writtenBytes += writeLength;
+            e.seekPtr += writeLength;
+
+            blockOffSet = 0;
+            
+    }
 
         return writtenBytes;
     }
