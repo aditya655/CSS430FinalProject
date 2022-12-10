@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class FileSystem {
-    private Superblock superblock;
+    private SuperBlock superblock;
     private Directory directory;
     private FileTable filetable;
 
