@@ -13,6 +13,7 @@ public class Inode {
                              // 3=unused(wreg), 4=used(r,wreq), 5= used(!r,wreg)
     public short direct[] = new short[directSize]; // directo pointers
     public short indirect;                         // an indirect pointer
+	public short iNumber;
 
     Inode ( ) {                        // a default constructor
 	length = 0;
