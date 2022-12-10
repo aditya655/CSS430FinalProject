@@ -25,7 +25,8 @@ public class Inode {
     }
 
 	// making inode from disk
-	Inode ( short iNumber ) {                  
+	Inode ( short iNumber ) {   
+		this.iNumber = iNumber;               
 		int blkNumber = 1 + iNumber / 16;          // inodes start from block#1
 		byte[] data = new byte[Disk.blockSize]; 
 		SysLib.rawread( blkNumber, data );         // get the inode block
@@ -75,7 +76,7 @@ public class Inode {
 		}
 		indirect = SysLib.bytes2short( data, offset );
 
-		offset += 2;
+		//offset += 2;
 
 		SysLib.rawread(blkNumber,data); 
 
