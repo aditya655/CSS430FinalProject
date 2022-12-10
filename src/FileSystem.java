@@ -211,7 +211,38 @@ public class FileSystem {
         synchronized ( ftEnt ) {
             int offset   = 0;              // buffer offset
             int left     = buffer.length;  // the remaining data of this buffer
-    
+            int writtenBytes = -1;
+            boolean loop = true;
+            if(ftEnt == null){
+                return -1;
+            }
+            ftEnt.count++;
+            while(loop){
+                switch(ftEnt.inode.flag){
+                    case 3:
+                    case 2:
+                    try{
+                        wait();
+                    }
+                    catch(InterruptedException e){}
+                    break;
+                    case 0:
+                    case 4:
+                    loop = false;
+                    break;
+                    default:
+                     ftEnt.inode.flag = 3;
+                     writtenBytes = writeFromFileTableEntry(ftEnt, buffer);
+                     if(ftEnt.seekPtr >= ftEnt.inode.length){
+                        ftEnt.inode.length = ftEnt.seekPtr;
+                        ftEnt.inode.toDisk(ftEnt.iNumber);
+                     }
+                     ftEnt.inode.flag = 1;
+                     loop = false;
+                }
+            }
+            ftEnt.count--;
+            return writtenBytes;
 
         }
     }
