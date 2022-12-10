@@ -119,8 +119,37 @@ public class FileSystem {
     
         int offset   = 0;              // buffer offset
         int left     = buffer.length;  // the remaining data of this buffer
-    
+        
         synchronized ( ftEnt ) {
+            if(ftEnt == null){
+                return -1;
+            }
+
+            boolean loop = true;
+            int readBytes = -1;
+            ftEnt.count++;
+
+            while(loop){
+                switch(ftEnt.inode.flag){
+                    case 3:
+                    try{
+                        wait();
+                    }
+                    catch(InterruptedException e){}
+                    break;
+                    case 0:
+                    case 4:
+                    loop = false;
+                    break;
+                    default:
+                     ftEnt.inode.flag = 2;
+                     readBytes = readFromFileTableEntry(ftEnt, buffer);
+                     ftEnt.inode.flag = 1;
+                     loop = false;
+                }
+            }
+            ftEnt.count--;
+            return readBytes;
 			// repeat reading until no more data  or reaching EOF
 
 
