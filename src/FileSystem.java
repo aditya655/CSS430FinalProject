@@ -80,7 +80,7 @@ public class FileSystem {
         }
 
         if(newFile){
-            short directBlock = superblock.claimBlock();
+            short directBlock = (short)superblock.getFreeBlock();
             if(directBlock == -1)
                 return null;
             
