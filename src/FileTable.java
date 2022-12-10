@@ -65,4 +65,4 @@ public class FileTable {
 	return table.isEmpty( );             // return if table is empty
     }                                        // called before a format
 }
-}
+
