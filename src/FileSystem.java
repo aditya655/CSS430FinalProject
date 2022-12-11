@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class FileSystem {
+public class FileSystem extends Thread {
     private SuperBlock superblock;
     private Directory directory;
     private FileTable filetable;
@@ -39,10 +39,8 @@ public class FileSystem {
 
     boolean format( int files ) {
         // wait until all filetable entries are destructed
-        while ( filetable.fempty( ) == false )
-            ;
-    
-        // format superblock, initialize inodes, and create a free list
+        while ( filetable.fempty( ) == false ){
+         // format superblock, initialize inodes, and create a free list
         superblock.format( files );
     
         // create directory, and register "/" in directory entry 0
@@ -50,6 +48,8 @@ public class FileSystem {
     
         // file table is created, and store directory in the file table
         filetable = new FileTable( directory );
+        
+        }
     
         return true;
     }
@@ -106,6 +106,8 @@ public class FileSystem {
 	
 
     int fsize( FileTableEntry ftEnt ) {
+    if(ftEnt == null)
+    return -1;
 
         
         return ftEnt.inode.length;
@@ -307,8 +309,8 @@ public class FileSystem {
             byte[] inDirectBlock = new byte[Disk.blockSize];
             SysLib.rawread(ftEnt.inode.indirect, inDirectBlock);
 
-            for(int i = 0; i < inDirectBlock.length; i++ ){
-                short validBlock = SysLib.bytes2short(inDirectBlock,i);
+            for( int j = 0; j < inDirectBlock.length; j++ ){
+                short validBlock = SysLib.bytes2short(inDirectBlock,j);
 
                 if(validBlock > 0){
                     freedBlocks.add(new Short(validBlock));

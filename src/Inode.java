@@ -125,6 +125,8 @@ public class Inode {
 
 			short inDirectBlock = SysLib.bytes2short(data, (seekBlock - directSize) * 2);
 			if(inDirectBlock == 0) return -1;
+      return inDirectBlock;
 		}
+   
 	}
 }
