@@ -1,9 +1,3 @@
-
-    /****************************************************
-    *               Final Project: OS                   *
-    *      Diego Guzman, Nathan Fixx, Misha Ward        *
-    *                                                   *
-    ****************************************************/
 import java.util.*;
 import java.lang.reflect.*;
 import java.io.*;
@@ -134,7 +128,7 @@ public class Kernel
                      ioQueue.enqueueAndSleep( COND_DISK_FIN );
                   return OK;
                case SYNC:     // synchronize disk data to a real file
-                  f.sync( );
+                  f.sync( ); // allows execution from our file system implementation
                   while ( disk.sync( ) == false )
                      ioQueue.enqueueAndSleep( COND_DISK_REQ );
                   while ( disk.testAndResetReady( ) == false )
@@ -162,10 +156,13 @@ public class Kernel
                         System.out.println( "threaOS: caused read errors" );
                         return ERROR;
                   }
+                  // check if TCB and associated entry are valid before 
+                  // passing arguments
                   if ( ( myTcb = scheduler.getMyTcb( ) ) != null ) {
                      FileTableEntry ftEnt = myTcb.getFtEnt( param );
                      if ( ftEnt != null )
-                        return f.read( ftEnt, ( byte[] )args );
+                        // arguments: entry, buffer
+                        return f.read( ftEnt, ( byte[] )args ); 
                   }
                   return ERROR;
                case WRITE:
@@ -180,9 +177,12 @@ public class Kernel
                         System.err.print( (String)args );
                         return OK;
                   }
+                  // check if TCB and associated entry are valid before 
+                  // passing arguments
                   if ( ( myTcb = scheduler.getMyTcb( ) ) != null ) {
                      FileTableEntry ftEnt = myTcb.getFtEnt( param );
                      if ( ftEnt != null )
+                        // arguments: entry, buffer
                         return f.write( ftEnt, ( byte[] )args );
                   }
                   return ERROR;
@@ -197,8 +197,11 @@ public class Kernel
                   cache.flush( );
                   return OK;
                case OPEN:
+                  // check if TCB and associated entry are valid before 
+                  // passing arguments
                   if ( ( myTcb = scheduler.getMyTcb( ) ) != null ) {
                      String[] s = ( String[] )args;
+                     // arguments: filename, mode
                      return myTcb.getFd( f.open( s[0], s[1] ) );
                   } else
                      return ERROR;
@@ -228,8 +231,10 @@ public class Kernel
                   }
                   return ERROR;
                case FORMAT:
+                  // check for method completion successfully 
                   return ( f.format( param ) == true ) ? OK : ERROR;
                case DELETE:
+                  // check for method completion successfully 
                   return ( f.delete( (String)args ) == true ) ? OK : ERROR;
             }
             return ERROR;
