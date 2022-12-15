@@ -21,13 +21,15 @@ public class FileTable {
     // immeadiately write back this inode to the disk
     // return a reference to this file (structure) table entry
     public synchronized FileTableEntry falloc( String filename, String mode ) {
+        // set to -1 and null since nothing has been allocated yet
         short iNumber = -1;
         Inode inode = null;
+        
         while (true) {
-            iNumber = (filename.equals("/") ? (short) 0 : dir.namei(filename));
-            if (iNumber >= 0) {
+            iNumber = (filename.equals("/") ? (short) 0 : dir.namei(filename)); // done because we are using a single level root directory
+            if (iNumber >= 0) { // id for Inode exists
                 inode = new Inode(iNumber);
-                if (mode.equals("r")) {
+                if (mode.equals("r")) { // set flag to value for read if the mode of the file is read only
                     if (inode.flag == READ
                             || inode.flag == USED
                             || inode.flag == UNUSED) {
@@ -38,7 +40,7 @@ public class FileTable {
                             wait();
                         } catch (InterruptedException e) { }
                     }
-                } else {
+                } else { // mode is append 
                     if (inode.flag == USED || inode.flag == UNUSED) {
                         inode.flag = WRITE;
                         break;
@@ -48,15 +50,16 @@ public class FileTable {
                         } catch (InterruptedException e) { }
                     }
                 }
-            } else if (!mode.equals("r")) {
+            } else if (!mode.equals("r")) { // mode isn't reading
                 iNumber = dir.ialloc(filename);
                 inode = new Inode(iNumber);
                 inode.flag = WRITE;
                 break;
-            } else {
+            } else { // invalid node
                 return null;
             }
         }
+        // increae the count of inode, save it to the disk, and make a new entry and add it to the tablelist
         inode.count++;
         inode.toDisk(iNumber);
         FileTableEntry entry = new FileTableEntry(inode, iNumber, mode);
@@ -68,7 +71,7 @@ public class FileTable {
     // free this file table entry
     // return true if this file table entry found in the table
     public synchronized boolean ffree(FileTableEntry entry) {
-        if (tableList.remove(entry)) {
+        if (tableList.remove(entry)) { // if the entry is removed
             entry.inode.count--;
             entry.inode.flag = 0;
             entry.inode.toDisk(entry.iNumber);
