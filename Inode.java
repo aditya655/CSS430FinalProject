@@ -62,29 +62,29 @@ public class Inode {
     // set index for block
     public boolean setIndexBlock(short index) {
         for (int i = 0; i < directSize; i++) {
-            if (direct[i] == -1) {
+            if (direct[i] == -1) { // direct block doesn't exist
                 return false;
             }
         }
-        if (indirect != -1) {
+        if (indirect != -1) { // indirect block doesn't exist
             return false;
         } else {
-            indirect = index;
+            indirect = index; // set indirect block to index
             byte[] data = new byte[Disk.blockSize];
-            for (int i = 0; i < Disk.blockSize / 2; i++) {
+            for (int i = 0; i < Disk.blockSize / 2; i++) { 
                 SysLib.short2bytes((short) -1, data, i * 2);
             }
-            SysLib.rawwrite(index, data);
+            SysLib.rawwrite(index, data); // write index to data
             return true;
         }
     }
     // finds the block
     public int findBlock(int byteNum) {
-        int blockNumber = byteNum / Disk.blockSize;
-        if (blockNumber < directSize) {
-            return direct[blockNumber];
+        int blockNumber = byteNum / Disk.blockSize; // calculate block number
+        if (blockNumber < directSize) { // blocknumber can't exceed size of directory
+            return direct[blockNumber]; // return block 
         }
-        if (indirect < 0) {
+        if (indirect < 0) { // indirect block doesn't exists
             return -1;
         }
         byte[] data = new byte[Disk.blockSize];
@@ -94,7 +94,7 @@ public class Inode {
     }
     // submits the blocks into free space
     public int submitBlock(int pointer, short freeBlock) {
-        int location = pointer / Disk.blockSize;
+        int location = pointer / Disk.blockSize; // calculate location for direct blocks based on pointer position
         if (location < directSize) {
             if (direct[location] >= 0)
                 return IN_USE;
@@ -107,7 +107,7 @@ public class Inode {
             return EMPTY;
         }
         byte[] data = new byte[Disk.blockSize];
-        SysLib.rawread(indirect, data);
+        SysLib.rawread(indirect, data); // read indirect block to data
         int offset = (location - directSize) * 2;
         if (SysLib.bytes2short(data, offset) > 0) { // in use
             return IN_USE;
@@ -120,9 +120,9 @@ public class Inode {
     public byte[] freeIndirect() {
         if (indirect >= 0) {
             byte[] data = new byte[Disk.blockSize];
-            SysLib.rawread(indirect, data);
-            indirect = -1;
-            return data;
+            SysLib.rawread(indirect, data); // read indirect block to the data
+            indirect = -1; // set to -1 
+            return data; // return all free blocks
         } else {
             return null;
         }
