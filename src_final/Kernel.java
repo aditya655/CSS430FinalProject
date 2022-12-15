@@ -1,9 +1,4 @@
 
-    /****************************************************
-    *               Final Project: OS                   *
-    *      Diego Guzman, Nathan Fixx, Misha Ward        *
-    *                                                   *
-    ****************************************************/
 import java.util.*;
 import java.lang.reflect.*;
 import java.io.*;
