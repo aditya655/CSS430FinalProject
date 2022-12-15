@@ -19,18 +19,26 @@ public class Inode {
         }
         indirect = -1;
     }
-    // retrieving inode from disk
+    
+    // Overloaded Inode constructor
+    // Inumber is is the identifier associated with this specific 
+    // inode and sets all variables by reading from disk the values
     public Inode(short num) {
+        // calcualte how many blocks to use 
+        // (blocks are formated by size of 16)
         int blockNumber = 1 + num / 16;
         byte[] data = new byte[Disk.blockSize];
         SysLib.rawread(blockNumber, data);
+        // calculate how much to offset 
         int offset = (num % 16) * iNodeSize;
+        // create space for variables
         length = SysLib.bytes2int(data, offset);
-        offset += 4;
+        offset += 4; // int offset
         count = SysLib.bytes2short(data, offset);
-        offset += 2;
+        offset += 2; // short offset
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
+        // allocate space for pointers
         for (int i = 0; i < directSize; i++) {
             direct[i] = SysLib.bytes2short(data, offset);
             offset += 2;
@@ -38,27 +46,38 @@ public class Inode {
         indirect = SysLib.bytes2short(data, offset);
     }
     
-    public void toDisk(short num) { // save to disk as the i-th inode
+    // Takes the passed in Inumber and that Inode from memory
+    // and stores to disk returning the index of the block that 
+    // its saved in.
+    public void toDisk(short num) {
+        // set buffer size
         byte[] data = new byte[iNodeSize];
         int offset = 0;
         SysLib.int2bytes(length, data, offset);
-        offset += 4;
+        offset += 4; // int offset
         SysLib.short2bytes(count, data, offset);
-        offset += 2;
+        offset += 2; // short offset
         SysLib.short2bytes(flag, data, offset);
         offset += 2;
+        // allocate space for pointers
         for (int i = 0; i < directSize; i++) {
             SysLib.short2bytes(direct[i], data, offset);
             offset += 2;
         }
         SysLib.short2bytes(indirect, data, offset);
+        // calcualte how many blocks to use 
+        // (blocks are formated by size of 16)
         int block = 1 + num / 16;
         byte[] newData = new byte[Disk.blockSize];
         SysLib.rawread(block, newData);
+        // calculate how much to offset 
         offset = num % 16 * iNodeSize;
+        // copy Inode data into New Data arr
         System.arraycopy(data, 0, newData, offset, iNodeSize);
+        // write NewData to disk
         SysLib.rawwrite(block, newData);
     }
+
     // set index for block
     public boolean setIndexBlock(short index) {
         for (int i = 0; i < directSize; i++) {
